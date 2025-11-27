@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true, 
   },
   reactStrictMode: true,
-  "output": "export",
+
 };
 
 export default nextConfig;

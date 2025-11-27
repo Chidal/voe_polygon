@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion'; // ← import Variants
 import { ClipboardIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid';
 import { EventLog } from '@/types';
 
-const fadeIn = {
+// Correctly typed Framer Motion variants (Next.js 15 + Framer Motion 11+)
+const fadeIn: Variants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut" as const, // ← this fixes the type error
+    },
+  },
 };
 
 const DevDashboard: React.FC = () => {
@@ -35,8 +43,8 @@ const DevDashboard: React.FC = () => {
     (event) =>
       event.transactionHash.toLowerCase().includes(search.toLowerCase()) ||
       event.eventName?.toLowerCase().includes(search.toLowerCase()) ||
-      event.params?.from.toLowerCase().includes(search.toLowerCase()) ||
-      event.params?.to.toLowerCase().includes(search.toLowerCase())
+      event.params?.from?.toLowerCase().includes(search.toLowerCase()) ||
+      event.params?.to?.toLowerCase().includes(search.toLowerCase())
   );
 
   const copyToClipboard = (text: string) => {
@@ -57,7 +65,8 @@ const DevDashboard: React.FC = () => {
     ]
       .map((row) => row.join(','))
       .join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -81,80 +90,108 @@ const DevDashboard: React.FC = () => {
   };
 
   return (
-    <motion.div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 p-8" initial="hidden" animate="visible" variants={fadeIn}>
-      <h1 className="text-4xl font-bold text-white text-shadow-glow mb-8">Developer Dashboard</h1>
-      <div className="space-y-4">
-        <div className="bg-gray-900/50 p-4 rounded-lg">
-          <h2 className="text-2xl font-semibold text-white text-shadow-glow mb-2">Event Log Search</h2>
+    <motion.div
+      className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 p-8"
+      initial="hidden"
+      animate="visible"
+      variants={fadeIn}
+    >
+      <h1 className="text-4xl font-bold text-white text-shadow-glow mb-8">
+        Developer Dashboard
+      </h1>
+
+      <div className="space-y-6 max-w-7xl mx-auto">
+        {/* Search */}
+        <div className="bg-gray-900/50 backdrop-blur p-6 rounded-xl border border-gray-700">
+          <h2 className="text-2xl font-semibold text-white mb-4">Event Log Search</h2>
           <input
             type="text"
             placeholder="Search by hash, event name, or address"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-2 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 rounded-lg bg-gray-800/70 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div className="bg-gray-900/50 p-4 rounded-lg">
-          <h2 className="text-2xl font-semibold text-white text-shadow-glow mb-2">API Query Tool</h2>
+
+        {/* Query Tool */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
-            placeholder="Enter block number"
+            placeholder="Block number"
             onChange={(e) => queryEvents(e.target.value, '')}
-            className="w-full p-2 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            className="p-3 rounded-lg bg-gray-800/70 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="text"
-            placeholder="Enter address"
+            placeholder="Contract address"
             onChange={(e) => queryEvents('', e.target.value)}
-            className="w-full p-2 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            className="p-3 rounded-lg bg-gray-800/70 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div className="bg-gray-900/50 p-4 rounded-lg">
-          <h2 className="text-2xl font-semibold text-white text-shadow-glow mb-2">Event Logs</h2>
-          <button
-            onClick={exportEvents}
-            className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center"
-          >
-            <ArrowDownTrayIcon className="h-5 w-5 mr-2" /> Export CSV
-          </button>
+
+        {/* Event Table */}
+        <div className="bg-gray-900/50 backdrop-blur p-6 rounded-xl border border-gray-700">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-white">Event Logs</h2>
+            <button
+              onClick={exportEvents}
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-2 transition"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5" />
+              Export CSV
+            </button>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full text-left text-gray-200">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="py-2 px-4">Hash</th>
-                  <th className="py-2 px-4">Event Name</th>
-                  <th className="py-2 px-4">From</th>
-                  <th className="py-2 px-4">To</th>
-                  <th className="py-2 px-4">Value</th>
+              <thead className="border-b-2 border-gray-700">
+                <tr>
+                  <th className="py-3 px-4">Hash</th>
+                  <th className="py-3 px-4">Event</th>
+                  <th className="py-3 px-4">From</th>
+                  <th className="py-3 px-4">To</th>
+                  <th className="py-3 px-4">Value</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredEvents.map((event) => (
-                  <tr key={event.id} className="border-b border-gray-800 hover:bg-gray-800/20">
-                    <td className="py-2 px-4">
-                      <div className="flex items-center">
-                        {event.transactionHash.slice(0, 6)}...
-                        <button
-                          onClick={() => copyToClipboard(event.transactionHash)}
-                          className="ml-2 text-blue-400 hover:text-blue-300"
-                        >
-                          <ClipboardIcon className="h-5 w-5" />
-                        </button>
-                      </div>
+                {filteredEvents.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-gray-500">
+                      No events yet...
                     </td>
-                    <td className="py-2 px-4">{event.eventName || 'Unknown'}</td>
-                    <td className="py-2 px-4">{event.params?.from.slice(0, 6)}...</td>
-                    <td className="py-2 px-4">{event.params?.to.slice(0, 6)}...</td>
-                    <td className="py-2 px-4">{event.params?.value}</td>
                   </tr>
-                ))}
+                ) : (
+                  filteredEvents.map((event) => (
+                    <tr key={event.id} className="border-b border-gray-800 hover:bg-gray-800/30">
+                      <td className="py-3 px-4 font-mono text-sm">
+                        <div className="flex items-center gap-2">
+                          {event.transactionHash.slice(0, 10)}...
+                          <button
+                            onClick={() => copyToClipboard(event.transactionHash)}
+                            className="text-blue-400 hover:text-blue-300"
+                          >
+                            <ClipboardIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">{event.eventName || '—'}</td>
+                      <td className="py-3 px-4 font-mono text-sm">
+                        {event.params?.from?.slice(0, 10) || '—'}...
+                      </td>
+                      <td className="py-3 px-4 font-mono text-sm">
+                        {event.params?.to?.slice(0, 10) || '—'}...
+                      </td>
+                      <td className="py-3 px-4">{event.params?.value || '—'}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
-                          </table>
-            </div>
+            </table>
           </div>
-          </div>
-        </motion.div>
+        </div>
+      </div>
+    </motion.div>
   );
-}
+};
 
 export default DevDashboard;

@@ -5,8 +5,10 @@ export interface Transaction {
   value: string;
   gasUsed: string;
   blockNumber: number;
-  timestamp: number;
+  timestamp: number | string;
   method?: string;
+  token?: string;       
+  tokenSymbol?: string; 
 }
 export interface Block {
     number: number;
