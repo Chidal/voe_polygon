@@ -16,9 +16,11 @@ All delivered with Polygon’s ultra-low fees and sub-second finality.
 
 With a degen-styled **Next.js + Tailwind** interface, Polygon Pulse converts raw on-chain activity into actionable alpha for AI + Crypto builders — enabling them to showcase investor-ready metrics (TVL growth, user traction, yield efficiency) and raise capital faster on the most scalable, cost-efficient Ethereum L2.
 
-🔴 **Live Demo:** [https://pulse.polygon.app](https://pulse.polygon.app)
+🔴 **Live Demo:** [https://polygon-pulse.vercel.app/](https://pulse.polygon.app)
 💻 **GitHub:** [https://github.com/yourteam/polygon-pulse](https://github.com/yourteam/polygon-pulse)
 
+
+## The smart contract successfully built and deployed to the Mainnet. The contract is live at 0xd9aC52cCaD325f96398A06ADad409B30b3768d24
 ---
 
 ## **Features**

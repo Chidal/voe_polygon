@@ -7,9 +7,10 @@
     "compile": "hardhat compile",
     "clean": "hardhat clean",
     "test": "hardhat test",
-    "deploy:core": "hardhat run scripts/deploy/deployCore.ts ----network og_mainnet",
-    "deploy:all": "hardhat run scripts/deploy/deployAll.ts --network og_mainnet",
-    "verify": "hardhat run scripts/utils/verify.ts --network og_mainnet"
+    "deploy:amoy": "hardhat run scripts/deploy/deployAll.js --network amoy",
+    "deploy:polygon": "hardhat run scripts/deploy/deployAll.js --network polygon",
+    "verify:amoy": "hardhat verify --network amoy",
+    "verify:polygon": "hardhat verify --network polygon"
   },
   "keywords": [],
   "author": "",
